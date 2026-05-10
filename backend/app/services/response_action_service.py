@@ -25,4 +25,8 @@ def execute_response_action(action: str, video_id: str, risk_score: float) -> st
     return (
         f"[NONE] 추가 대응이 필요하지 않습니다. "
         f"video_id={video_id}, risk_score={risk_score}"
+<<<<<<< HEAD
     )
+=======
+    )
+>>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef

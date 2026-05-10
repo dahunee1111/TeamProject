@@ -11,3 +11,6 @@ datasets/
 *.pt
 
 .env
+
+backend/uploads/
+*.mp4

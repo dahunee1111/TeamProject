@@ -16,3 +16,7 @@ def get_uploaded_file_path(video_id: str) -> str | None:
             return os.path.join(UPLOAD_DIR, filename)
 
     return None
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef

@@ -20,4 +20,8 @@ async def upload_video(file: UploadFile = File(...)):
         "video_id": file_id,
         "filename": file.filename,
         "path": file_path
+<<<<<<< HEAD
     }
+=======
+    }
+>>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef

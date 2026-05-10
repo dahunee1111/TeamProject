@@ -9,3 +9,7 @@ class AnalysisResponse(BaseModel):
     object_confidence: float | None = None
     risk_score: float
     action: str
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef
