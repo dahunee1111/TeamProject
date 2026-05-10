@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 이상행동 감지 시스템</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+
+    .user-info {
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .logout-btn {
+      background: #dc2626;
+    }
+
+    .title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    button {
+      background: #1f6feb;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-top: 8px;
+    }
+
+    button:disabled {
+      background: #9aa4b2;
+      cursor: not-allowed;
+    }
+
+    .tab-btn {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .tab-btn.active {
+      background: #1f6feb;
+      color: white;
+    }
+
+    .status-text {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #555;
+      word-break: break-word;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .info-box {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .badge-safe { background: #16a34a; }
+    .badge-warning { background: #f59e0b; }
+    .badge-danger { background: #dc2626; }
+
+    .gauge-wrap { margin-top: 18px; }
+
+    .gauge-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .gauge-bar {
+      width: 100%;
+      height: 20px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .gauge-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .fill-safe { background: #16a34a; }
+    .fill-warning { background: #f59e0b; }
+    .fill-danger { background: #dc2626; }
+
+    .action-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      font-weight: 600;
+    }
+
+    .json-box {
+      margin-top: 16px;
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 14px;
+      padding: 18px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .muted {
+      color: #777;
+      font-size: 14px;
+    }
+
+    #webcam {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      border-radius: 14px;
+      background: #000;
+      margin-bottom: 12px;
+    }
+
+    .realtime-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    .history-tabs {
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    .table-wrap {
+      margin-top: 16px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background: white;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 12px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #374151;
+      font-weight: 700;
+    }
+
+    .small-badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .small-none { background: #6b7280; }
+    .small-alert { background: #f59e0b; }
+    .small-broadcast { background: #2563eb; }
+    .small-report { background: #dc2626; }
+
+    .source-badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      background: #4b5563;
+    }
+
+    .source-upload { background: #7c3aed; }
+    .source-realtime { background: #0891b2; }
+
+    @media (max-width: 800px) {
+      .result-grid { grid-template-columns: 1fr; }
+
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    #adminBtn {
+      background: #7c3aed;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    .rag-guide-box {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 14px;
+      background: #fff8e1;
+      border: 2px solid #f59e0b;
+    }
+
+    .rag-guide-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      color: #b45309;
+    }
+
+    #ragGuideList {
+      padding-left: 20px;
+    }
+
+    #ragGuideList li {
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .danger-toast {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 9999;
+      width: 340px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #dc2626;
+      color: white;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      animation: slideIn 0.3s ease;
+    }
+
+    .danger-toast-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .danger-toast-body {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    .camera-select-box {
+      margin-bottom: 16px;
+    }
+
+    .camera-select-box label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .camera-select-box select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="dangerToast" class="danger-toast" style="display:none;">
+  <div class="danger-toast-title">🚨 실시간 위험 감지</div>
+  <div id="dangerToastBody" class="danger-toast-body"></div>
+  </div>
+
+
+  <div class="container">
+    <div class="top-bar">
+  <div id="userInfo" class="user-info">
+    로그인 확인 중...
+  </div>
+
+  <div style="display:flex;gap:10px;">
+    <button
+      id="mypageBtn"
+      style="
+        background:#2563eb;
+        color:white;
+        border:none;
+        border-radius:10px;
+        padding:11px 16px;
+        font-size:14px;
+        font-weight:700;
+        cursor:pointer;
+      "
+    >
+      마이페이지
+    </button>
+
+    <button
+      id="logoutBtn"
+      class="logout-btn"
+    >
+      로그아웃
+    </button>
+    <button id="adminBtn" style="display:none;">
+      관리자 페이지
+    </button>
+    <button
+      id="cctvSettingsBtn"
+      style="
+        display:none;
+        background:#0891b2;
+        color:white;
+        border:none;
+        border-radius:10px;
+        padding:11px 16px;
+        font-size:14px;
+        font-weight:700;
+        cursor:pointer;
+      "
+    >
+      CCTV 설정
+    </button>
+  </div>
+</div>
+
+    <div class="title">AI 이상행동 감지 시스템</div>
+    <div class="subtitle">
+      영상 업로드 → 행동 분석 → 위험물품 탐지 → 위험도 점수 계산 → 자동 대응 → 분석 로그 저장
+    </div>
+
+    <div class="card">
+      <h2>영상 업로드 및 자동 분석</h2>
+      <input type="file" id="videoFile" accept="video/*" />
+      <button id="startBtn">업로드 및 분석 시작</button>
+      <div class="status-text" id="statusText">대기 중</div>
+      <div class="status-text" id="videoIdText">video_id: 없음</div>
+    </div>
+    
+    <div class="camera-select-box">
+      <label for="cameraSelect">CCTV 선택</label>
+
+      <select id="cameraSelect">
+        <option value="">CCTV 불러오는 중...</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h2>실시간 CCTV 웹캠 감지</h2>
+
+      <video id="webcam" autoplay playsinline></video>
+      <canvas id="canvas" style="display:none;"></canvas>
+
+      <button id="startWebcamBtn">웹캠 시작</button>
+      <button id="stopWebcamBtn" disabled>웹캠 중지</button>
+
+      <div class="status-text" id="webcamStatus">웹캠 대기 중</div>
+      <div class="realtime-box" id="realtimeResult">
+        실시간 탐지 결과가 여기에 표시됩니다.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>분석 결과 대시보드</h2>
+
+      <div id="emptyState" class="muted">아직 분석 결과가 없습니다.</div>
+
+      <div id="resultSection" style="display:none;">
+        <div class="result-grid">
+          <div class="info-box">
+            <div class="label">행동 분석 결과</div>
+            <div class="value" id="behaviorResult">-</div>
+          </div>
+
+          <div class="info-box">
+            <div class="label">위험물품 탐지 결과</div>
+            <div class="value" id="objectResult">-</div>
+          </div>
+
+          <div class="info-box">
+            <div class="label">대응 액션</div>
+            <div class="value" id="actionResult">-</div>
+          </div>
+
+          <div class="info-box">
+            <div class="label">상태</div>
+            <div id="statusBadge">-</div>
+          </div>
+        </div>
+
+        <div class="gauge-wrap">
+          <div class="gauge-header">
+            <span>위험도 점수</span>
+            <span id="riskScoreText">0</span>
+          </div>
+          <div class="gauge-bar">
+            <div id="gaugeFill" class="gauge-fill"></div>
+          </div>
+        </div>
+
+        <div class="action-box" id="actionMessage">
+          대응 메시지가 여기에 표시됩니다.
+        </div>
+
+        <div class="json-box" id="resultJson">
+          결과 JSON이 여기에 표시됩니다.
+        </div>
+      </div>
+    </div>
+    
+    <div id="ragGuideBox" class="rag-guide-box" style="display:none;">
+      <h2>AI 대응 가이드</h2>
+
+      <div id="ragGuideTitle" class="rag-guide-title"></div>
+
+      <ul id="ragGuideList"></ul>
+    </div>
+
+    <div class="card">
+      <h2>분석 로그 기록</h2>
+      <button id="loadHistoryBtn">분석 기록 불러오기</button>
+
+      <div class="history-tabs">
+        <button class="tab-btn active" id="tabAllBtn">전체 기록</button>
+        <button class="tab-btn" id="tabUploadBtn">업로드 영상 기록</button>
+        <button class="tab-btn" id="tabRealtimeBtn">실시간 CCTV 기록</button>
+      </div>
+
+      <div class="status-text" id="historyStatus">기록 조회 전</div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>CCTV</th>
+              <th>위치</th>
+              <th>시간</th>
+              <th>Video ID</th>
+              <th>행동</th>
+              <th>물체</th>
+              <th>신뢰도</th>
+              <th>위험도</th>
+              <th>액션</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr>
+              <td colspan="10" class="muted">아직 불러온 기록이 없습니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE_URL = "http://127.0.0.1:8000";
+    const FRONT_LOGIN_URL = "http://127.0.0.1:5500/frontend/login.html";
+
+    const accessToken = localStorage.getItem("accessToken");
+    const loggedInUserRaw = localStorage.getItem("loggedInUser");
+    const loggedInUser = loggedInUserRaw ? JSON.parse(loggedInUserRaw) : null;
+
+    if (!accessToken || !loggedInUser) {
+      alert("로그인이 필요합니다.");
+      window.location.href = FRONT_LOGIN_URL;
+    }
+
+    function authHeaders(extraHeaders = {}) {
+      return {
+        ...extraHeaders,
+        "Authorization": `Bearer ${accessToken}`
+      };
+    }
+
+    const userInfo = document.getElementById("userInfo");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const mypageBtn = document.getElementById("mypageBtn");
+    const adminBtn = document.getElementById("adminBtn");
+    const cctvSettingsBtn = document.getElementById("cctvSettingsBtn");
+
+    if (loggedInUser) {
+      userInfo.textContent =
+        `${loggedInUser.username} 님 로그인 중 (${loggedInUser.role})`;
+    }
+    if (loggedInUser.role === "admin") {
+      adminBtn.style.display = "inline-block";
+      cctvSettingsBtn.style.display = "inline-block";
+    }
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("loggedInUser");
+
+      alert("로그아웃 되었습니다.");
+      window.location.href = FRONT_LOGIN_URL;
+    });
+
+    const videoFileInput = document.getElementById("videoFile");
+    const startBtn = document.getElementById("startBtn");
+
+    const statusText = document.getElementById("statusText");
+    const videoIdText = document.getElementById("videoIdText");
+
+    const emptyState = document.getElementById("emptyState");
+    const resultSection = document.getElementById("resultSection");
+
+    const behaviorResult = document.getElementById("behaviorResult");
+    const objectResult = document.getElementById("objectResult");
+    const actionResult = document.getElementById("actionResult");
+    const statusBadge = document.getElementById("statusBadge");
+    const riskScoreText = document.getElementById("riskScoreText");
+    const gaugeFill = document.getElementById("gaugeFill");
+    const actionMessage = document.getElementById("actionMessage");
+    const resultJson = document.getElementById("resultJson");
+    const ragGuideBox = document.getElementById("ragGuideBox");
+    const ragGuideTitle = document.getElementById("ragGuideTitle");
+    const ragGuideList = document.getElementById("ragGuideList");
+
+    const webcam = document.getElementById("webcam");
+    const canvas = document.getElementById("canvas");
+    const startWebcamBtn = document.getElementById("startWebcamBtn");
+    const stopWebcamBtn = document.getElementById("stopWebcamBtn");
+    const webcamStatus = document.getElementById("webcamStatus");
+    const realtimeResult = document.getElementById("realtimeResult");
+    const cameraSelect = document.getElementById("cameraSelect");
+    const dangerToast = document.getElementById("dangerToast");
+    const dangerToastBody = document.getElementById("dangerToastBody");
+
+
+    const loadHistoryBtn = document.getElementById("loadHistoryBtn");
+    const historyStatus = document.getElementById("historyStatus");
+    const historyTableBody = document.getElementById("historyTableBody");
+
+    const tabAllBtn = document.getElementById("tabAllBtn");
+    const tabUploadBtn = document.getElementById("tabUploadBtn");
+    const tabRealtimeBtn = document.getElementById("tabRealtimeBtn");
+
+    let webcamStream = null;
+    let realtimeInterval = null;
+    let isRealtimeRequestRunning = false;
+
+    let historyRows = [];
+    let currentHistoryFilter = "all";
+
+    function getStatusInfo(score) {
+      if (score < 30) {
+        return {
+          text: "안전",
+          badgeClass: "badge badge-safe",
+          fillClass: "gauge-fill fill-safe"
+        };
+      }
+
+      if (score < 85) {
+        return {
+          text: "주의/위험",
+          badgeClass: "badge badge-warning",
+          fillClass: "gauge-fill fill-warning"
+        };
+      }
+
+      return {
+        text: "긴급",
+        badgeClass: "badge badge-danger",
+        fillClass: "gauge-fill fill-danger"
+      };
+    }
+
+    function getActionMessage(action) {
+      if (action === "none") return "정상 상태입니다. 별도 조치가 필요하지 않습니다.";
+      if (action === "alert") return "주의 상황입니다. 관리자에게 알림을 전송합니다.";
+      if (action === "broadcast") return "위험 가능성이 높습니다. 현장 경고 방송을 실행합니다.";
+      if (action === "report") return "긴급 상황입니다. 신고 또는 즉각 대응이 필요합니다.";
+      return "대응 정보를 확인할 수 없습니다.";
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "-";
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return value;
+      }
+
+      return date.toLocaleString("ko-KR");
+    }
+
+    function isRealtimeRow(row) {
+      return String(row.video_id || "").startsWith("realtime-");
+    }
+
+    function getSourceInfo(row) {
+      if (isRealtimeRow(row)) {
+        return {
+          text: "실시간 CCTV",
+          className: "source-badge source-realtime"
+        };
+      }
+
+      return {
+        text: "업로드 영상",
+        className: "source-badge source-upload"
+      };
+    }
+
+    function getActionBadge(action) {
+      const classMap = {
+        none: "small-badge small-none",
+        alert: "small-badge small-alert",
+        broadcast: "small-badge small-broadcast",
+        report: "small-badge small-report"
+      };
+
+      return `<span class="${classMap[action] || "small-badge small-none"}">${action}</span>`;
+    }
+
+    function renderResult(data) {
+      emptyState.style.display = "none";
+      resultSection.style.display = "block";
+
+      behaviorResult.textContent =
+        data.behavior_result === "abnormal" || data.behavior_result === 1
+          ? `이상 (${data.behavior_confidence})`
+          : `정상 (${data.behavior_confidence})`;
+
+      objectResult.textContent = data.object_detected
+        ? `${data.object_label} (${Number(data.object_confidence).toFixed(3)})`
+        : "위험물품 없음";
+
+      actionResult.textContent = data.action;
+
+      const status = getStatusInfo(Number(data.risk_score));
+      statusBadge.innerHTML = `<span class="${status.badgeClass}">${status.text}</span>`;
+
+      riskScoreText.textContent = data.risk_score;
+      gaugeFill.className = status.fillClass;
+      gaugeFill.style.width = `${Math.min(Number(data.risk_score), 100)}%`;
+
+      actionMessage.textContent =
+        data.action_result || getActionMessage(data.action);
+
+      resultJson.textContent =
+        JSON.stringify(data, null, 2);
+
+      // RAG 대응 가이드 출력
+      if (
+        data.rag_guide &&
+        data.rag_guide.guide
+      ) {
+        const guideData = data.rag_guide.guide;
+
+        ragGuideBox.style.display = "block";
+
+        ragGuideTitle.textContent =
+          guideData.title || "대응 가이드";
+
+        ragGuideList.innerHTML = "";
+
+        if (guideData.guide) {
+          guideData.guide.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = item;
+            ragGuideList.appendChild(li);
+          });
+        }
+      } else {
+        ragGuideBox.style.display = "none";
+      }
+    }
+
+    async function uploadVideo(file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(`${BASE_URL}/upload/video`, {
+        method: "POST",
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error("영상 업로드 실패");
+      }
+
+      return await response.json();
+    }
+
+    async function analyzeVideo(filePath) {
+      const response = await fetch(`${BASE_URL}/analysis/`, {
+        method: "POST",
+        headers: authHeaders({
+          "Content-Type": "application/json"
+        }),
+        body: JSON.stringify({
+          file_path: filePath
+        })
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("loggedInUser");
+        alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+        window.location.href = FRONT_LOGIN_URL;
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("영상 분석 실패");
+      }
+
+      return await response.json();
+    }
+
+    function getFilteredHistoryRows() {
+      if (currentHistoryFilter === "upload") {
+        return historyRows.filter(row => !isRealtimeRow(row));
+      }
+
+      if (currentHistoryFilter === "realtime") {
+        return historyRows.filter(row => isRealtimeRow(row));
+      }
+
+      return historyRows;
+    }
+
+    function updateTabButtons() {
+      tabAllBtn.classList.remove("active");
+      tabUploadBtn.classList.remove("active");
+      tabRealtimeBtn.classList.remove("active");
+
+      if (currentHistoryFilter === "all") {
+        tabAllBtn.classList.add("active");
+      } else if (currentHistoryFilter === "upload") {
+        tabUploadBtn.classList.add("active");
+      } else if (currentHistoryFilter === "realtime") {
+        tabRealtimeBtn.classList.add("active");
+      }
+    }
+
+    function renderHistoryTable() {
+      updateTabButtons();
+
+      const rows = getFilteredHistoryRows();
+
+      const total = historyRows.length;
+      const uploadCount = historyRows.filter(row => !isRealtimeRow(row)).length;
+      const realtimeCount = historyRows.filter(row => isRealtimeRow(row)).length;
+
+      historyStatus.textContent =
+        `전체 ${total}개 / 업로드 ${uploadCount}개 / 실시간 ${realtimeCount}개`;
+
+      if (rows.length === 0) {
+        historyTableBody.innerHTML = `
+          <tr>
+            <td colspan="10" class="muted">해당 유형의 기록이 없습니다.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      historyTableBody.innerHTML = rows.map(row => {
+        const behaviorText =
+          row.behavior_result === 1 ? "이상" : "정상";
+
+        const objectText = row.object_detected
+          ? row.object_label
+          : "없음";
+
+        const objectConfidence =
+          row.object_confidence !== null && row.object_confidence !== undefined
+            ? Number(row.object_confidence).toFixed(3)
+            : "-";
+
+        const source = getSourceInfo(row);
+
+        return `
+          <tr>
+            <td><span class="${source.className}">${source.text}</span></td>
+            <td>${row.camera_name || "-"}</td>
+            <td>${row.camera_location || "-"}</td>
+            <td>${formatDateTime(row.created_at)}</td>
+            <td>${row.video_id}</td>
+            <td>${behaviorText}</td>
+            <td>${objectText}</td>
+            <td>${objectConfidence}</td>
+            <td>${row.risk_score}</td>
+            <td>${getActionBadge(row.action)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+    async function loadCCTVList() {
+      try {
+        const response = await fetch(
+          `${BASE_URL}/cctv/`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
+        );
+
+        const result = await response.json();
+
+        if (!result.success) {
+          return;
+        }
+
+        const cameras = result.data || [];
+
+        if (cameras.length === 0) {
+          cameraSelect.innerHTML =
+            `<option value="">등록된 CCTV 없음</option>`;
+          return;
+        }
+
+        cameraSelect.innerHTML = cameras
+          .filter(camera => camera.is_active)
+          .map(camera => `
+            <option
+              value="${camera.id}"
+              data-name="${camera.camera_name}"
+              data-location="${camera.camera_location}"
+            >
+              ${camera.camera_name} - ${camera.camera_location}
+            </option>
+          `)
+          .join("");
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    async function loadHistory() {
+      historyStatus.textContent = "분석 기록 불러오는 중...";
+
+      try {
+        const response = await fetch(`${BASE_URL}/history/`, {
+          method: "GET",
+          headers: authHeaders()
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("loggedInUser");
+          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+          window.location.href = FRONT_LOGIN_URL;
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("분석 기록 조회 실패");
+        }
+
+        const result = await response.json();
+
+        historyRows = result.data || [];
+
+        renderHistoryTable();
+      } catch (error) {
+        historyStatus.textContent = `기록 조회 오류: ${error.message}`;
+      }
+    }
+
+    startBtn.addEventListener("click", async () => {
+      const file = videoFileInput.files[0];
+
+      if (!file) {
+        statusText.textContent = "영상 파일을 먼저 선택해주세요.";
+        return;
+      }
+
+      try {
+        startBtn.disabled = true;
+        statusText.textContent = "영상 업로드 중...";
+        videoIdText.textContent = "video_id: 없음";
+
+        const uploadData = await uploadVideo(file);
+
+        const videoId = uploadData.video_id;
+        const filePath = uploadData.path || uploadData.file_path;
+
+        videoIdText.textContent = `video_id: ${videoId}`;
+        statusText.textContent = "업로드 완료. AI 분석 중...";
+
+        const analysisData = await analyzeVideo(filePath);
+
+        if (!analysisData) return;
+
+        statusText.textContent = "분석 완료";
+        renderResult(analysisData);
+        if (
+          analysisData.object_detected ||
+          analysisData.behavior_result === "abnormal"
+        ) {
+          showDangerPopup(
+            analysisData.object_label || "이상행동",
+            analysisData.camera_name || "UPLOAD",
+            analysisData.camera_location || "영상 업로드 분석"
+          );
+        }
+
+        await loadHistory();
+      } catch (error) {
+        statusText.textContent = `오류 발생: ${error.message}`;
+      } finally {
+        startBtn.disabled = false;
+      }
+    });
+
+    async function sendRealtimeFrame() {
+      if (!webcamStream || isRealtimeRequestRunning) {
+        return;
+      }
+
+      if (!webcam.videoWidth || !webcam.videoHeight) {
+        return;
+      }
+
+      isRealtimeRequestRunning = true;
+
+      try {
+        const context = canvas.getContext("2d");
+
+        canvas.width = webcam.videoWidth;
+        canvas.height = webcam.videoHeight;
+
+        context.drawImage(
+          webcam,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        canvas.toBlob(async (blob) => {
+          try {
+            if (!blob) {
+              realtimeResult.textContent = "프레임 생성 실패";
+              return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", blob, "frame.jpg");
+
+            const selectedOption =
+              cameraSelect.options[cameraSelect.selectedIndex];
+
+            const cameraName =
+              selectedOption?.dataset?.name || "CAM-01";
+
+            const cameraLocation =
+              selectedOption?.dataset?.location || "실시간 웹캠";
+
+            formData.append("camera_name", cameraName);
+            formData.append("camera_location", cameraLocation);
+
+            const response = await fetch(`${BASE_URL}/realtime/detect`, {
+              method: "POST",
+              headers: authHeaders(),
+              body: formData
+            });
+
+            if (response.status === 401 || response.status === 403) {
+              localStorage.removeItem("accessToken");
+              localStorage.removeItem("loggedInUser");
+              alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+              window.location.href = FRONT_LOGIN_URL;
+              return;
+            }
+
+            const data = await response.json();
+
+            if (!data.success) {
+              realtimeResult.textContent = `실시간 분석 오류: ${data.message}`;
+              return;
+            }
+
+            if (data.detections && data.detections.length > 0) {
+              realtimeResult.innerHTML = data.detections
+                .map(d => `${d.label} (${Number(d.confidence).toFixed(3)})`)
+                .join("<br>");
+
+              const detectedText = data.detections
+                .map(d => `${d.label} (${Number(d.confidence).toFixed(3)})`)
+                .join(", ");
+                showDangerPopup(
+                  detectedText,
+                  data.camera_name || "CAM-01",
+                  data.camera_location || "실시간 웹캠"
+                );
+              if (data.rag_guide) {
+                renderResult({
+                  success: true,
+                  behavior_result: "normal",
+                  behavior_confidence: 0,
+                  object_detected: true,
+                  object_label: data.detections[0].label,
+                  object_confidence: data.detections[0].confidence,
+                  risk_score: 60,
+                  action: "alert",
+                  action_result: "실시간 위험물체가 감지되었습니다.",
+                  rag_guide: data.rag_guide
+                });
+              }
+
+
+              if (data.saved) {
+                await loadHistory();
+                loadCCTVList();
+              }
+            } else {
+              realtimeResult.textContent = "탐지 없음";
+            }
+          } catch (error) {
+            realtimeResult.textContent = `실시간 요청 오류: ${error.message}`;
+          } finally {
+            isRealtimeRequestRunning = false;
+          }
+        }, "image/jpeg");
+      } catch (error) {
+        realtimeResult.textContent = `프레임 처리 오류: ${error.message}`;
+        isRealtimeRequestRunning = false;
+      }
+    }
+
+    startWebcamBtn.addEventListener("click", async () => {
+      try {
+        webcamStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+
+        webcam.srcObject = webcamStream;
+
+        webcamStatus.textContent = "웹캠 연결 완료. 실시간 감지 중...";
+        realtimeResult.textContent = "실시간 탐지 시작";
+
+        startWebcamBtn.disabled = true;
+        stopWebcamBtn.disabled = false;
+
+        realtimeInterval = setInterval(sendRealtimeFrame, 1000);
+      } catch (error) {
+        webcamStatus.textContent = `웹캠 오류: ${error.message}`;
+      }
+    });
+
+    stopWebcamBtn.addEventListener("click", () => {
+      if (realtimeInterval) {
+        clearInterval(realtimeInterval);
+        realtimeInterval = null;
+      }
+
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(track => track.stop());
+        webcamStream = null;
+      }
+
+      webcam.srcObject = null;
+      webcamStatus.textContent = "웹캠 중지됨";
+      realtimeResult.textContent = "실시간 탐지 대기 중";
+
+      startWebcamBtn.disabled = false;
+      stopWebcamBtn.disabled = true;
+      isRealtimeRequestRunning = false;
+    });
+
+    loadHistoryBtn.addEventListener("click", loadHistory);
+
+    tabAllBtn.addEventListener("click", () => {
+      currentHistoryFilter = "all";
+      renderHistoryTable();
+    });
+
+    tabUploadBtn.addEventListener("click", () => {
+      currentHistoryFilter = "upload";
+      renderHistoryTable();
+    });
+
+    tabRealtimeBtn.addEventListener("click", () => {
+      currentHistoryFilter = "realtime";
+      renderHistoryTable();
+    });
+
+    loadHistory();
+    loadCCTVList();
+    mypageBtn.addEventListener("click", () => {
+    window.location.href =
+      "http://127.0.0.1:5500/frontend/mypage.html";
+    });
+    
+    adminBtn.addEventListener("click", () => {
+      window.location.href =
+        "http://127.0.0.1:5500/frontend/admin.html";
+    });
+    cctvSettingsBtn.addEventListener("click", () => {
+      window.location.href =
+        "http://127.0.0.1:5500/frontend/cctv_settings.html";
+    });
+    function showDangerPopup(detectedText, cameraName, cameraLocation) {
+      const now = new Date().toLocaleString("ko-KR");
+
+      dangerToastBody.innerHTML = `
+        <div><strong>탐지 물체:</strong> ${detectedText}</div>
+        <div><strong>카메라:</strong> ${cameraName}</div>
+        <div><strong>위치:</strong> ${cameraLocation}</div>
+        <div><strong>시간:</strong> ${now}</div>
+        <div style="margin-top:10px;font-weight:700;">
+          즉시 상황을 확인하세요.
+        </div>
+      `;
+
+      dangerToast.style.display = "block";
+
+      setTimeout(() => {
+        dangerToast.style.display = "none";
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

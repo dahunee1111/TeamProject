@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원가입 - AI 이상행동 감지 시스템</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #222;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: 80px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      background: #1f6feb;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #9aa4b2;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 16px;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .success {
+      color: #16a34a;
+    }
+
+    .error {
+      color: #dc2626;
+    }
+
+    .link {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #1f6feb;
+      font-weight: 700;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>회원가입</h1>
+      <div class="subtitle">
+        AI 이상행동 감지 시스템 계정을 생성합니다.
+      </div>
+
+      <form id="signupForm">
+        <label for="username">사용자명</label>
+        <input
+          type="text"
+          id="username"
+          placeholder="예: admin"
+          required
+        />
+
+        <label for="email">이메일</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="예: admin@test.com"
+          required
+        />
+
+        <label for="password">비밀번호</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="비밀번호 입력"
+          required
+        />
+
+        <button type="submit" id="signupBtn">
+          회원가입
+        </button>
+      </form>
+
+      <div id="message" class="message"></div>
+
+      <div class="link">
+        이미 계정이 있나요?
+        <a href="./login.html">로그인하기</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE_URL = "http://127.0.0.1:8000";
+
+    const signupForm = document.getElementById("signupForm");
+    const signupBtn = document.getElementById("signupBtn");
+    const message = document.getElementById("message");
+
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!username || !email || !password) {
+        message.className = "message error";
+        message.textContent = "모든 항목을 입력해주세요.";
+        return;
+      }
+
+      try {
+        signupBtn.disabled = true;
+        message.className = "message";
+        message.textContent = "회원가입 처리 중...";
+
+        const response = await fetch(`${BASE_URL}/auth/signup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username,
+            email,
+            password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || "회원가입 실패");
+        }
+
+        message.className = "message success";
+        message.textContent = "회원가입 성공! 로그인 페이지로 이동합니다.";
+
+        setTimeout(() => {
+          window.location.href = "./login.html";
+        }, 1000);
+      } catch (error) {
+        message.className = "message error";
+        message.textContent = error.message;
+      } finally {
+        signupBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

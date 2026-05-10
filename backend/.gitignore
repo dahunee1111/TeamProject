@@ -1,0 +1,13 @@
+venv/
+backend/venv/
+
+__pycache__/
+*.pyc
+
+Dataset/
+datasets/
+
+*.pth
+*.pt
+
+.env
