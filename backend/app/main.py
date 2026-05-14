@@ -1,6 +1,9 @@
+from pathlib import Path
+
 from fastapi import FastAPI
-<<<<<<< HEAD
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.routers import (
     upload,
@@ -10,13 +13,18 @@ from app.routers import (
     auth,
     admin,
     rag,
-    cctv
+    cctv,
 )
 from app.database.connection import engine, Base
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+FRONTEND_DIR = BASE_DIR / "frontend"
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AI Behavior Analysis Backend")
+
+app.mount("/frontend", StaticFiles(directory=str(FRONTEND_DIR)), name="frontend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,16 +33,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-=======
-from app.routers import upload, analysis, history
-
-app = FastAPI()
->>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef
 
 app.include_router(upload.router)
 app.include_router(analysis.router)
 app.include_router(history.router)
-<<<<<<< HEAD
 app.include_router(realtime.router)
 app.include_router(auth.router)
 app.include_router(admin.router)
@@ -44,10 +46,20 @@ app.include_router(cctv.router)
 
 @app.get("/")
 def root():
-    return {"message": "Server is running"}
-=======
+    return FileResponse(FRONTEND_DIR / "login.html")
 
-@app.get("/")
-def root():
+
+@app.get("/health")
+def health():
     return {"message": "Server is running"}
->>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef
+
+
+@app.get("/health/db")
+def database_health():
+    return {
+        "database": engine.url.get_backend_name()
+    }
+
+@app.get("/db-health")
+def db_health_alias():
+    return database_health()
