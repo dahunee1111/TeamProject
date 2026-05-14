@@ -2,7 +2,6 @@ fastapi
 uvicorn
 python-multipart
 sqlalchemy
-<<<<<<< HEAD
 
 torch
 opencv-python
@@ -18,5 +17,7 @@ email-validator
 bcrypt==4.0.1
 
 requests
-=======
->>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef
+
+python-jose[cryptography]
+opencv-python-headless
+psycopg2-binary
