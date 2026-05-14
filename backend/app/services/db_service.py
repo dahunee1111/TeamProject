@@ -12,7 +12,6 @@ def save_analysis_result(
     object_label: str | None,
     object_confidence: float | None,
     risk_score: float,
-<<<<<<< HEAD
     action: str,
     user_id: int | None = None,
     camera_name: str | None = None,
@@ -26,13 +25,6 @@ def save_analysis_result(
         existing.user_id = user_id
         existing.camera_name = camera_name
         existing.camera_location = camera_location
-=======
-    action: str
-):
-    existing = db.query(AnalysisResult).filter(AnalysisResult.video_id == video_id).first()
-
-    if existing:
->>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef
         existing.behavior_result = behavior_result
         existing.behavior_confidence = behavior_confidence
         existing.object_detected = object_detected
@@ -40,25 +32,17 @@ def save_analysis_result(
         existing.object_confidence = object_confidence
         existing.risk_score = risk_score
         existing.action = action
-<<<<<<< HEAD
 
         db.commit()
         db.refresh(existing)
 
-=======
-        db.commit()
-        db.refresh(existing)
->>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef
         return existing
 
     new_result = AnalysisResult(
         video_id=video_id,
-<<<<<<< HEAD
         user_id=user_id,
         camera_name=camera_name,
         camera_location=camera_location,
-=======
->>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef
         behavior_result=behavior_result,
         behavior_confidence=behavior_confidence,
         object_detected=object_detected,
@@ -71,7 +55,6 @@ def save_analysis_result(
     db.add(new_result)
     db.commit()
     db.refresh(new_result)
-<<<<<<< HEAD
 
     return new_result
 
@@ -109,14 +92,3 @@ def get_all_results(
     return query.order_by(
         AnalysisResult.created_at.desc()
     ).all()
-=======
-    return new_result
-
-
-def get_result_by_video_id(db: Session, video_id: str):
-    return db.query(AnalysisResult).filter(AnalysisResult.video_id == video_id).first()
-
-
-def get_all_results(db: Session):
-    return db.query(AnalysisResult).order_by(AnalysisResult.created_at.desc()).all()
->>>>>>> 4e4caf4b230f5e7c87c7b89a2e3173b75c8bc5ef
